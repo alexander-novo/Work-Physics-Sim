@@ -3,14 +3,16 @@ var CANVAS_ID = "physics_cart_sim_main_canvas";
 //The dimensions of the cart as a percentage of the canvas width
 var CART_WIDTH = .125;
 var CART_HEIGHT = .04;
-var CART_MASS = 1; //kg
+var CART_MASS = 5; //kg
 //Percentage of the cart on each side that should register a push
 //Should not be greater than .5
 var HITBOX_RATIO = .5;
 //Maximum force of the push. Scales up or down depending on how far into the cart the pointer is.
-var PUSH_FORCE = 75; //N
+var PUSH_FORCE = 25; //N
 //Font size as a percentage of screen height
 var FONT_RATIO = .025;
+//Number of meters wide the canvas is
+var SCALE = 35;
 
 var canvas;
 var height;
@@ -83,6 +85,7 @@ function update() {
 	window.requestAnimationFrame(update);
 }
 
+//Main physics function
 function updatePhysics() {
 	//Keep track of where the simulator portion starts and ends
 	var top = height / 2;
@@ -114,7 +117,7 @@ function updatePhysics() {
 
 	cart.velocity += cart.acceleration * timePassed / 1000;
 
-	cart.x += cart.velocity * timePassed / 1000;
+	cart.x += cart.velocity * timePassed / 1000 * (width / SCALE);
 
 	updateHistogram(cart.x, push * cart.velocity / Math.abs(cart.velocity));
 }
