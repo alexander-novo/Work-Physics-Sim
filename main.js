@@ -15,6 +15,7 @@ var FONT_RATIO = .025;
 var canvas;
 var height;
 var width;
+var dpi_ratio;
 
 var cart = {};
 
@@ -32,6 +33,8 @@ window.onload = init;
 
 function init() {
 	canvas = document.getElementById(CANVAS_ID).getContext("2d");
+
+	hiDefCanvas();
 
 	width = canvas.canvas.width;// = document.body.clientWidth;
 	height = canvas.canvas.height;// = document.body.clientHeight;
@@ -51,6 +54,22 @@ function init() {
 	lastUpdate = (new Date).getTime();
 
 	window.requestAnimationFrame(update);
+}
+
+//Corrects for high-DPI monitors, making text look smooth
+function hiDefCanvas() {
+	var dpr = window.devicePixelRatio || 1,
+        bsr = canvas.webkitBackingStorePixelRatio ||
+              canvas.mozBackingStorePixelRatio ||
+              canvas.msBackingStorePixelRatio ||
+              canvas.oBackingStorePixelRatio ||
+              canvas.backingStorePixelRatio || 1;
+
+    dpi_ratio = dpr / bsr;
+    canvas.canvas.style.width = canvas.canvas.width;
+    canvas.canvas.style.height = canvas.canvas.height;
+    canvas.canvas.width *= dpi_ratio;
+    canvas.canvas.height *= dpi_ratio;
 }
 
 function update() {
@@ -180,6 +199,6 @@ function drawSimulator() {
 
 function mouseHandler(event) {
 	var rect = canvas.canvas.getBoundingClientRect();
-	mousePos.x = event.clientX - rect.left;
-	mousePos.y = event.clientY - rect.top;
+	mousePos.x = (event.clientX - rect.left) * dpi_ratio;
+	mousePos.y = (event.clientY - rect.top) * dpi_ratio;
 }
