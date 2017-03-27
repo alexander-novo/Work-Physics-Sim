@@ -3,14 +3,16 @@ var CANVAS_ID = "physics_cart_sim_main_canvas";
 //The dimensions of the cart as a percentage of the canvas width
 var CART_WIDTH = .125;
 var CART_HEIGHT = .04;
-var CART_MASS = 1; //kg
+var CART_MASS = 5; //kg
 //Percentage of the cart on each side that should register a push
 //Should not be greater than .5
 var HITBOX_RATIO = .5;
 //Maximum force of the push. Scales up or down depending on how far into the cart the pointer is.
-var PUSH_FORCE = 75; //N
+var PUSH_FORCE = 25; //N
 //Font size as a percentage of screen height
 var FONT_RATIO = .025;
+//Number of meters wide the canvas is
+var SCALE = 35;
 
 var canvas;
 var height;
@@ -83,6 +85,7 @@ function update() {
 	window.requestAnimationFrame(update);
 }
 
+//Main physics function
 function updatePhysics() {
 	//Keep track of where the simulator portion starts and ends
 	var top = height / 2;
@@ -114,7 +117,7 @@ function updatePhysics() {
 
 	cart.velocity += cart.acceleration * timePassed / 1000;
 
-	cart.x += cart.velocity * timePassed / 1000;
+	cart.x += cart.velocity * timePassed / 1000 * (width / SCALE);
 
 	updateHistogram(cart.x, push * cart.velocity / Math.abs(cart.velocity));
 }
@@ -122,7 +125,7 @@ function updatePhysics() {
 //Adds a new point to the histogram
 function updateHistogram(x, y) {
 	if(histogram[histogram.length - 1].x == x) return;
-	if(x > canvas.width || x < 0) return;
+	if(x > width || x < 0) return;
 
 	if(histogram.length > 1) {
 		//If the previous two points are the same y value, then overwrite the previous one with the new one
@@ -154,33 +157,42 @@ function drawGraph() {
 	var end = histogram[histogram.length - 1];
 	var positive = true;
 
+	var widthModifier = .85;
+	var heightModifier = .825;
+
+	var histoLoc = {
+		x: 0 + width * .1,
+		y: top + graphHeight * .05,
+		width: width * .85,
+		height: graphHeight * heightModifier};
+
 	//Draw histogram fill
 	canvas.fillStyle = "cyan";
 	canvas.beginPath();
-	canvas.moveTo(start.x, top + graphHeight / 2 - (start.y * graphHeight / PUSH_FORCE / 2));
+	canvas.moveTo(start.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2 - (start.y * histoLoc.height / PUSH_FORCE / 2));
 	for(const point of histogram) {
 		if(positive && point.y < 0) {
-			canvas.lineTo(point.x, top + graphHeight / 2);
+			canvas.lineTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 			canvas.closePath();
 			canvas.fill();
 			canvas.fillStyle = "yellow";
 			canvas.beginPath();
-			canvas.moveTo(point.x, top + graphHeight / 2);
+			canvas.moveTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 			positive = false;
 		} else if(!positive && point.y > 0) {
-			canvas.lineTo(point.x, top + graphHeight / 2);
+			canvas.lineTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 			canvas.closePath();
 			canvas.fill();
 			canvas.fillStyle = "cyan";
 			canvas.beginPath();
-			canvas.moveTo(point.x, top + graphHeight / 2);
+			canvas.moveTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 			positive = true;
 		}
 
-		canvas.lineTo(point.x, top + graphHeight / 2 - (point.y * graphHeight / PUSH_FORCE / 2));
+		canvas.lineTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2 - (point.y * histoLoc.height / PUSH_FORCE / 2));
 	}
 
-	canvas.lineTo(end.x, top + graphHeight / 2);
+	canvas.lineTo(end.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 	canvas.closePath();
 	canvas.fill();
 
@@ -188,16 +200,21 @@ function drawGraph() {
 	canvas.lineWidth = 1;
 	canvas.strokeStyle = "blue";
 	canvas.beginPath();
-	canvas.moveTo(start.x, top + graphHeight / 2 - (start.y * graphHeight / PUSH_FORCE / 2));
+	canvas.moveTo(start.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2 - (start.y * histoLoc.height / PUSH_FORCE / 2));
 	for(const point of histogram) {
-		canvas.lineTo(point.x, top + graphHeight / 2 - (point.y * graphHeight / PUSH_FORCE / 2));
+		canvas.lineTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2 - (point.y * histoLoc.height / PUSH_FORCE / 2));
 	}
 	canvas.stroke();
+
+	//Draw graph outline
+	canvas.lineWidth = 1;
+	canvas.strokeStyle = "black";
+	canvas.strokeRect(histoLoc.x, histoLoc.y, histoLoc.width, histoLoc.height);
 
 	//Draw cursor
 	canvas.fillStyle = "red";
 	canvas.beginPath();
-	canvas.arc(end.x, top + graphHeight / 2 - (end.y * graphHeight / PUSH_FORCE / 2), height * .005, 0, 2 * Math.PI);
+	canvas.arc(end.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2 - (end.y * histoLoc.height / PUSH_FORCE / 2), height * .005, 0, 2 * Math.PI);
 	canvas.fill();
 
 	//Draw Border
