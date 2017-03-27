@@ -29,6 +29,8 @@ var mousePos = {x: 0, y: 0};
 //Keeps track of the time of the last update
 var lastUpdate;
 
+var histogram = [];
+
 window.onload = init;
 
 function init() {
@@ -50,6 +52,8 @@ function init() {
 
 	//Cart should start in the middle
 	cart.x = width / 2;
+
+	histogram.push({x: cart.x, y: 0});
 
 	lastUpdate = (new Date).getTime();
 
@@ -96,15 +100,12 @@ function updatePhysics() {
 		
 		//Left push
 		if(mousePos.x < cart.x - cart.width / 2 + cart.width * HITBOX_RATIO) {
-			//Minimum force is PUSH_FORCE / 2
 			//Scale up to maximum based on how far into the hitbox the pointer is
-			push += PUSH_FORCE / 2;
-			push += PUSH_FORCE / 2 / (cart.width * HITBOX_RATIO / (mousePos.x - (cart.x - cart.width / 2)));
+			push += PUSH_FORCE / (cart.width * HITBOX_RATIO / (mousePos.x - (cart.x - cart.width / 2)));
 		}
 		//Right push
 		else if (mousePos.x > cart.x + cart.width / 2 - cart.width * HITBOX_RATIO) {
-			push -= PUSH_FORCE / 2;
-			push -= PUSH_FORCE / 2 / (cart.width * HITBOX_RATIO / ((cart.x + cart.width / 2) - mousePos.x));
+			push -= PUSH_FORCE / (cart.width * HITBOX_RATIO / ((cart.x + cart.width / 2) - mousePos.x));
 		}
 
 	}
@@ -114,6 +115,24 @@ function updatePhysics() {
 	cart.velocity += cart.acceleration * timePassed / 1000;
 
 	cart.x += cart.velocity * timePassed / 1000;
+
+	updateHistogram(cart.x, push * cart.velocity / Math.abs(cart.velocity));
+}
+
+//Adds a new point to the histogram
+function updateHistogram(x, y) {
+	if(histogram[histogram.length - 1].x == x) return;
+	if(x > canvas.width || x < 0) return;
+
+	if(histogram.length > 1) {
+		//If the previous two points are the same y value, then overwrite the previous one with the new one
+		if(histogram[histogram.length - 1].y == y && histogram[histogram.length - 2].y == y) {
+			histogram[histogram.length - 1].x = x;
+			return;
+		}
+	}
+
+	histogram.push({x: x, y: y});
 }
 
 function draw() {
@@ -123,9 +142,67 @@ function draw() {
 	canvas.fillStyle = "black";
 
 	canvas.fillText(mousePos.x + "," + mousePos.y, 10, 25);
-	//drawGraph
-	drawSimulator()
+	drawGraph();
+	drawSimulator();
 	//drawMeters
+}
+
+function drawGraph() {
+	var top = 0;
+	var graphHeight = height / 2;
+	var start = histogram[0];
+	var end = histogram[histogram.length - 1];
+	var positive = true;
+
+	//Draw histogram fill
+	canvas.fillStyle = "cyan";
+	canvas.beginPath();
+	canvas.moveTo(start.x, top + graphHeight / 2 - (start.y * graphHeight / PUSH_FORCE / 2));
+	for(const point of histogram) {
+		if(positive && point.y < 0) {
+			canvas.lineTo(point.x, top + graphHeight / 2);
+			canvas.closePath();
+			canvas.fill();
+			canvas.fillStyle = "yellow";
+			canvas.beginPath();
+			canvas.moveTo(point.x, top + graphHeight / 2);
+			positive = false;
+		} else if(!positive && point.y > 0) {
+			canvas.lineTo(point.x, top + graphHeight / 2);
+			canvas.closePath();
+			canvas.fill();
+			canvas.fillStyle = "cyan";
+			canvas.beginPath();
+			canvas.moveTo(point.x, top + graphHeight / 2);
+			positive = true;
+		}
+
+		canvas.lineTo(point.x, top + graphHeight / 2 - (point.y * graphHeight / PUSH_FORCE / 2));
+	}
+
+	canvas.lineTo(end.x, top + graphHeight / 2);
+	canvas.closePath();
+	canvas.fill();
+
+	//Draw Histogram outline
+	canvas.strokeStyle = "blue";
+	canvas.beginPath();
+	canvas.moveTo(start.x, top + graphHeight / 2 - (start.y * graphHeight / PUSH_FORCE / 2));
+	for(const point of histogram) {
+		canvas.lineTo(point.x, top + graphHeight / 2 - (point.y * graphHeight / PUSH_FORCE / 2));
+	}
+	canvas.stroke();
+
+	//Draw cursor
+	canvas.fillStyle = "red";
+	canvas.beginPath();
+	canvas.arc(end.x, top + graphHeight / 2 - (end.y * graphHeight / PUSH_FORCE / 2), height * .005, 0, 2 * Math.PI);
+	canvas.fill();
+
+	//Draw Border
+	canvas.strokeStyle = "black";
+	canvas.lineWidth = 2;
+	canvas.strokeRect(0 + canvas.lineWidth / 2, top + canvas.lineWidth / 2, width - canvas.lineWidth, graphHeight - canvas.lineWidth);
 }
 
 function drawSimulator() {
@@ -133,6 +210,7 @@ function drawSimulator() {
 	var top = height / 2;
 	var simHeight = height / 5;
 
+	//Draw Pointer
 	//How far to offset the pointer image to line up with the tip of the finger
 	var offsetX = width / 8;
 	var offsetY = width / 30;
@@ -190,7 +268,7 @@ function drawSimulator() {
 	canvas.fillText( "Push Cart Left and Right", width / 2 - canvas.measureText("Push Cart Left and Right").width / 2, top + simHeight / 5);
 
 	//Border
-	canvas.fillStyle = "black";
+	canvas.strokeStyle = "black";
 	canvas.lineWidth = 2;
 	canvas.strokeRect(0 + canvas.lineWidth / 2, top, width - canvas.lineWidth, simHeight);
 
