@@ -211,6 +211,17 @@ function drawGraph() {
 	canvas.strokeStyle = "black";
 	canvas.strokeRect(histoLoc.x, histoLoc.y, histoLoc.width, histoLoc.height);
 
+	//Axis labels
+	canvas.font = height * FONT_RATIO * .8 + "px Courier New";
+	canvas.fillStyle = "black";
+	canvas.fillText("Position (m)", histoLoc.x + histoLoc.width / 2 - canvas.measureText("Position (m)").width / 2, histoLoc.y + histoLoc.height * 1.1);
+
+	canvas.save();
+	canvas.translate(width * .03, histoLoc.y + histoLoc.height / 2 + canvas.measureText("|F|cos(" + String.fromCharCode(952) + ") (N)").width / 2);
+	canvas.rotate(-Math.PI / 2);
+	canvas.fillText("|F|cos(" + String.fromCharCode(952) + ") (N)", 0, 0);
+	canvas.restore();
+
 	//Draw cursor
 	canvas.fillStyle = "red";
 	canvas.beginPath();
