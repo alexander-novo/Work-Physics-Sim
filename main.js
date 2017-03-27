@@ -1,0 +1,178 @@
+//ID of the canvas element to draw simulator on
+var CANVAS_ID = "physics_cart_sim_main_canvas";
+//The dimensions of the cart as a percentage of the canvas width
+var CART_WIDTH = .125;
+var CART_HEIGHT = .04;
+var CART_MASS = 1; //kg
+//Percentage of the cart on each side that should register a push
+//Should not be greater than .5
+var HITBOX_RATIO = .5;
+//Maximum force of the push. Scales up or down depending on how far into the cart the pointer is.
+var PUSH_FORCE = 75; //N
+
+var canvas;
+var height;
+var width;
+
+var cart = {};
+
+//Pointer image by Viktor Fedyuk
+var pointerImg = new Image();
+pointerImg.src = "pointer.svg";
+console.log("Pointer image provided by Viktor Fedyuk");
+
+var mousePos = {x: 0, y: 0};
+
+//Keeps track of the time of the last update
+var lastUpdate;
+
+window.onload = init;
+
+function init() {
+	canvas = document.getElementById(CANVAS_ID).getContext("2d");
+
+	width = canvas.canvas.width;// = document.body.clientWidth;
+	height = canvas.canvas.height;// = document.body.clientHeight;
+
+	cart.width = width * CART_WIDTH;
+	cart.height = height * CART_HEIGHT;
+	cart.velocity = 0;
+	cart.acceleration = 0;
+	cart.mass = CART_MASS;
+
+	//Keep track of the mouse
+	canvas.canvas.addEventListener("mousemove", mouseHandler);
+
+	//Cart should start in the middle
+	cart.x = width / 2;
+
+	lastUpdate = (new Date).getTime();
+
+	window.requestAnimationFrame(update);
+}
+
+function update() {
+	updatePhysics();
+	draw();
+
+	window.requestAnimationFrame(update);
+}
+
+function updatePhysics() {
+	//Keep track of where the simulator portion starts and ends
+	var top = height / 2;
+	var simHeight = height / 5;
+
+	var currentTime = new Date;
+	var timePassed = currentTime.getTime() - lastUpdate;
+	lastUpdate = currentTime.getTime();
+
+	var push = 0;
+
+	//Hitbox detection
+	if(mousePos.x > cart.x - cart.width / 2 && mousePos.x < cart.x + cart.width / 2
+		&& mousePos.y < top + simHeight * (4 / 5) && mousePos.y > top + simHeight * (4 / 5) - cart.height) {
+		
+		//Left push
+		if(mousePos.x < cart.x - cart.width / 2 + cart.width * HITBOX_RATIO) {
+			//Minimum force is PUSH_FORCE / 2
+			//Scale up to maximum based on how far into the hitbox the pointer is
+			push += PUSH_FORCE / 2;
+			push += PUSH_FORCE / 2 / (cart.width * HITBOX_RATIO / (mousePos.x - (cart.x - cart.width / 2)));
+		}
+		//Right push
+		else if (mousePos.x > cart.x + cart.width / 2 - cart.width * HITBOX_RATIO) {
+			push -= PUSH_FORCE / 2;
+			push -= PUSH_FORCE / 2 / (cart.width * HITBOX_RATIO / ((cart.x + cart.width / 2) - mousePos.x));
+		}
+
+	}
+
+	cart.acceleration = push / cart.mass;
+
+	cart.velocity += cart.acceleration * timePassed / 1000;
+
+	cart.x += cart.velocity * timePassed / 1000;
+}
+
+function draw() {
+	canvas.clearRect(0, 0, width, height);
+
+	canvas.font = "12pt Calibri";
+	canvas.fillStyle = "black";
+
+	canvas.fillText(mousePos.x + "," + mousePos.y, 10, 25);
+	//drawGraph
+	drawSimulator()
+	//drawMeters
+}
+
+function drawSimulator() {
+	//Keep track of where the simulator portion starts and ends
+	var top = height / 2;
+	var simHeight = height / 5;
+
+	//How far to offset the pointer image to line up with the tip of the finger
+	var offsetX = width / 8;
+	var offsetY = width / 30;
+
+	var drawPos = {x: mousePos.x, y: mousePos.y};
+
+	//Clamp the pointer to our simulator
+	if(drawPos.y < top) {
+		drawPos.y = top;
+		canvas.canvas.style.cursor = "auto";
+	} else if (drawPos.y > top + simHeight - simHeight / 5) {
+		drawPos.y = top + simHeight;
+		canvas.canvas.style.cursor = "auto";
+	} else {
+		canvas.canvas.style.cursor = "none";
+	}
+
+	if(drawPos.x < cart.x) {
+		canvas.drawImage(pointerImg, drawPos.x - offsetX, drawPos.y - offsetY, width / 7.5, height / 7.5);
+	} else {
+		canvas.save();
+		canvas.scale(-1, 1);
+
+		canvas.drawImage(pointerImg, 0 - (drawPos.x + offsetX), drawPos.y - offsetY, width / 7.5, height / 7.5);
+
+		canvas.restore();
+	}
+
+	//Draw cart
+	var wheelRadius = cart.height / 5;
+	
+	canvas.fillStyle = "silver";
+	canvas.fillRect(cart.x - cart.width / 2, top + simHeight * (4 / 5) - cart.height - cart.height * .1, cart.width, cart.height);
+
+	canvas.fillStyle = "black";
+	canvas.beginPath();
+	canvas.arc(cart.x - cart.width / 2 + wheelRadius * 1.75, top + simHeight * (4 / 5) - wheelRadius, wheelRadius, 0, 2 * Math.PI);
+	canvas.fill();
+	canvas.beginPath();
+	canvas.arc(cart.x + cart.width / 2 - wheelRadius * 1.75, top + simHeight * (4 / 5) - wheelRadius, wheelRadius, 0, 2 * Math.PI);
+	canvas.fill();
+
+	//If the pointer image is bleeding over, erase the bottom portion
+	if(drawPos.y - offsetY + height / 7.5 > top + simHeight) {
+		canvas.clearRect(0, top + simHeight, width, height - top - simHeight);
+	}
+	
+	//Draw table
+	canvas.fillStyle = "grey";
+	canvas.fillRect(0, top + simHeight * (4 / 5), width, simHeight / 5);
+
+	//Border
+	canvas.fillStyle = "black";
+	canvas.lineWidth = 2;
+	canvas.strokeRect(0 + canvas.lineWidth / 2, top, width - canvas.lineWidth, simHeight);
+
+	
+}
+
+function mouseHandler(event) {
+	var rect = canvas.canvas.getBoundingClientRect();
+	mousePos.x = event.clientX - rect.left;
+	mousePos.y = event.clientY - rect.top;
+}
