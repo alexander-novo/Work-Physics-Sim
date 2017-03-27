@@ -9,6 +9,8 @@ var CART_MASS = 1; //kg
 var HITBOX_RATIO = .5;
 //Maximum force of the push. Scales up or down depending on how far into the cart the pointer is.
 var PUSH_FORCE = 75; //N
+//Font size as a percentage of screen height
+var FONT_RATIO = .025;
 
 var canvas;
 var height;
@@ -162,6 +164,11 @@ function drawSimulator() {
 	//Draw table
 	canvas.fillStyle = "grey";
 	canvas.fillRect(0, top + simHeight * (4 / 5), width, simHeight / 5);
+
+	//Instructions
+	canvas.fillStyle = "black";
+	canvas.font = height * FONT_RATIO + "px Verdana";
+	canvas.fillText( "Push Cart Left and Right", width / 2 - canvas.measureText("Push Cart Left and Right").width / 2, top + simHeight / 5);
 
 	//Border
 	canvas.fillStyle = "black";
