@@ -185,6 +185,7 @@ function drawGraph() {
 	canvas.fill();
 
 	//Draw Histogram outline
+	canvas.lineWidth = 1;
 	canvas.strokeStyle = "blue";
 	canvas.beginPath();
 	canvas.moveTo(start.x, top + graphHeight / 2 - (start.y * graphHeight / PUSH_FORCE / 2));
