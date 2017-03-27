@@ -212,7 +212,7 @@ function drawGraph() {
 	canvas.strokeRect(histoLoc.x, histoLoc.y, histoLoc.width, histoLoc.height);
 
 	//Axis labels
-	canvas.font = height * FONT_RATIO * .8 + "px Courier New";
+	canvas.font = height * FONT_RATIO + "px Courier New";
 	canvas.fillStyle = "black";
 	canvas.fillText("Position (m)", histoLoc.x + histoLoc.width / 2 - canvas.measureText("Position (m)").width / 2, histoLoc.y + histoLoc.height * 1.1);
 
