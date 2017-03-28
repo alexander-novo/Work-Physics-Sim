@@ -168,7 +168,7 @@ function drawGraph() {
 		height: graphHeight * heightModifier};
 
 	//Draw histogram fill
-	canvas.fillStyle = "cyan";
+	canvas.fillStyle = "blue";
 	canvas.globalAlpha = .5;
 	canvas.beginPath();
 	canvas.moveTo(start.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2 - (start.y * histoLoc.height / PUSH_FORCE / 2));
@@ -185,7 +185,7 @@ function drawGraph() {
 			canvas.lineTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 			canvas.closePath();
 			canvas.fill();
-			canvas.fillStyle = "cyan";
+			canvas.fillStyle = "blue";
 			canvas.beginPath();
 			canvas.moveTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 			positive = true;
@@ -193,11 +193,12 @@ function drawGraph() {
 
 		canvas.lineTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2 - (point.y * histoLoc.height / PUSH_FORCE / 2));
 	}
-	canvas.globalAlpha = 1;
 
 	canvas.lineTo(end.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 	canvas.closePath();
 	canvas.fill();
+
+	canvas.globalAlpha = 1;
 
 	//Draw Histogram outline
 	canvas.lineWidth = 1;
