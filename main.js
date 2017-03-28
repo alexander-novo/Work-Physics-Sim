@@ -100,9 +100,8 @@ function updatePhysics() {
 
 	var push = 0;
 
-	//Hitbox detection
 	if(mousePos.x > cart.x - cart.width / 2 && mousePos.x < cart.x + cart.width / 2
-		&& mousePos.y < top + simHeight * (4 / 5) && mousePos.y > top + simHeight * (4 / 5) - cart.height) {
+		&& mousePos.y < top + simHeight * (4 / 5) - cart.height * .1 && mousePos.y > top + simHeight * (4 / 5) - cart.height * 1.1) {
 		
 		//Left push
 		if(mousePos.x < cart.x - cart.width / 2 + cart.width * HITBOX_RATIO) {
