@@ -169,6 +169,7 @@ function drawGraph() {
 
 	//Draw histogram fill
 	canvas.fillStyle = "cyan";
+	canvas.globalAlpha = .5;
 	canvas.beginPath();
 	canvas.moveTo(start.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2 - (start.y * histoLoc.height / PUSH_FORCE / 2));
 	for(var point of histogram) {
@@ -192,6 +193,7 @@ function drawGraph() {
 
 		canvas.lineTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2 - (point.y * histoLoc.height / PUSH_FORCE / 2));
 	}
+	canvas.globalAlpha = 1;
 
 	canvas.lineTo(end.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 	canvas.closePath();
