@@ -172,7 +172,7 @@ function drawGraph() {
 	canvas.fillStyle = "cyan";
 	canvas.beginPath();
 	canvas.moveTo(start.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2 - (start.y * histoLoc.height / PUSH_FORCE / 2));
-	for(const point of histogram) {
+	for(var point of histogram) {
 		if(positive && point.y < 0) {
 			canvas.lineTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 			canvas.closePath();
