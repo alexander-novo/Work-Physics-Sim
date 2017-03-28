@@ -11,8 +11,11 @@ var HITBOX_RATIO = .5;
 var PUSH_FORCE = 25; //N
 //Font size as a percentage of screen height
 var FONT_RATIO = .025;
+var LABEL_FONT_RATIO = .015;
 //Number of meters wide the canvas is
 var SCALE = 35;
+//Percentage of the width / height the tick marks on the histogram should take up
+var TICK_RATIO = .02;
 
 var canvas;
 var height;
@@ -144,7 +147,6 @@ function draw() {
 	canvas.font = "12pt Calibri";
 	canvas.fillStyle = "black";
 
-	canvas.fillText(mousePos.x + "," + mousePos.y, 10, 25);
 	drawGraph();
 	drawSimulator();
 	//drawMeters
@@ -217,10 +219,79 @@ function drawGraph() {
 	canvas.fillText("Position (m)", histoLoc.x + histoLoc.width / 2 - canvas.measureText("Position (m)").width / 2, histoLoc.y + histoLoc.height * 1.1);
 
 	canvas.save();
+	//Move to where I want to print the Y axis label, and then rotate so I don't have to do any complicated coordinate math
 	canvas.translate(width * .03, histoLoc.y + histoLoc.height / 2 + canvas.measureText("|F|cos(" + String.fromCharCode(952) + ") (N)").width / 2);
 	canvas.rotate(-Math.PI / 2);
 	canvas.fillText("|F|cos(" + String.fromCharCode(952) + ") (N)", 0, 0);
 	canvas.restore();
+
+	//Axis key points
+	canvas.font = height * LABEL_FONT_RATIO + "px Courier New";
+	//y-axis
+	canvas.fillText(PUSH_FORCE.toFixed(2), histoLoc.x - canvas.measureText(PUSH_FORCE.toFixed(2)).width * 1.1, histoLoc.y + height * LABEL_FONT_RATIO / 2);
+	canvas.fillText("0.00", histoLoc.x - canvas.measureText("0.00").width * 1.1, histoLoc.y + histoLoc.height / 2 + height * LABEL_FONT_RATIO / 4);
+	canvas.fillText("-" + PUSH_FORCE.toFixed(2), histoLoc.x - canvas.measureText("-" + PUSH_FORCE.toFixed(2)).width * 1.1, histoLoc.y + histoLoc.height);
+	//x-axis
+	canvas.fillText("-" + (SCALE / 2).toFixed(2), histoLoc.x - canvas.measureText("-" + (SCALE / 2).toFixed(2)).width / 2, histoLoc.y + histoLoc.height + height * LABEL_FONT_RATIO);
+	canvas.fillText("-" + (SCALE / 4).toFixed(2), histoLoc.x + histoLoc.width / 4 - canvas.measureText("-" + (SCALE / 4).toFixed(2)).width / 2, histoLoc.y + histoLoc.height + height * LABEL_FONT_RATIO);
+	canvas.fillText("0.00", histoLoc.x + histoLoc.width / 2 - canvas.measureText("0.00").width / 2, histoLoc.y + histoLoc.height + height * LABEL_FONT_RATIO);
+	canvas.fillText((SCALE / 4).toFixed(2), histoLoc.x + histoLoc.width * .75 - canvas.measureText((SCALE / 4).toFixed(2)).width / 2, histoLoc.y + histoLoc.height + height * LABEL_FONT_RATIO);
+	canvas.fillText((SCALE / 2).toFixed(2), histoLoc.x + histoLoc.width - canvas.measureText((SCALE / 2).toFixed(2)).width / 2, histoLoc.y + histoLoc.height + height * LABEL_FONT_RATIO);
+
+	//Draw key point tick marks
+	canvas.strokeStyle = "black";
+
+	//y-axis
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x, histoLoc.y + histoLoc.height * .25);
+	canvas.lineTo(histoLoc.x + histoLoc.width * TICK_RATIO / 2, histoLoc.y + histoLoc.height / 4);
+	canvas.stroke();
+
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x, histoLoc.y + histoLoc.height * .5);
+	canvas.lineTo(histoLoc.x + histoLoc.width * TICK_RATIO, histoLoc.y + histoLoc.height / 2);
+	canvas.stroke();
+
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x, histoLoc.y + histoLoc.height * .75);
+	canvas.lineTo(histoLoc.x + histoLoc.width * TICK_RATIO / 2, histoLoc.y + histoLoc.height * .75);
+	canvas.stroke();
+
+	//x-axis
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x + histoLoc.width * .125, histoLoc.y + histoLoc.height);
+	canvas.lineTo(histoLoc.x + histoLoc.width * .125, histoLoc.y + histoLoc.height * (1 - TICK_RATIO / 2));
+	canvas.stroke();
+
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x + histoLoc.width * .25, histoLoc.y + histoLoc.height);
+	canvas.lineTo(histoLoc.x + histoLoc.width * .25, histoLoc.y + histoLoc.height * (1 - TICK_RATIO));
+	canvas.stroke();
+
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x + histoLoc.width * .375, histoLoc.y + histoLoc.height);
+	canvas.lineTo(histoLoc.x + histoLoc.width * .375, histoLoc.y + histoLoc.height * (1 - TICK_RATIO / 2));
+	canvas.stroke();
+
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x + histoLoc.width * .5, histoLoc.y + histoLoc.height);
+	canvas.lineTo(histoLoc.x + histoLoc.width * .5, histoLoc.y + histoLoc.height * (1 - TICK_RATIO));
+	canvas.stroke();
+
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x + histoLoc.width * .625, histoLoc.y + histoLoc.height);
+	canvas.lineTo(histoLoc.x + histoLoc.width * .625, histoLoc.y + histoLoc.height * (1 - TICK_RATIO / 2));
+	canvas.stroke();
+
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x + histoLoc.width * .75, histoLoc.y + histoLoc.height);
+	canvas.lineTo(histoLoc.x + histoLoc.width * .75, histoLoc.y + histoLoc.height * (1 - TICK_RATIO));
+	canvas.stroke();
+
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x + histoLoc.width * .875, histoLoc.y + histoLoc.height);
+	canvas.lineTo(histoLoc.x + histoLoc.width * .875, histoLoc.y + histoLoc.height * (1 - TICK_RATIO / 2));
+	canvas.stroke();
 
 	//Draw cursor
 	canvas.fillStyle = "red";
