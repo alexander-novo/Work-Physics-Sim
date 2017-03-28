@@ -100,9 +100,8 @@ function updatePhysics() {
 
 	var push = 0;
 
-	//Hitbox detection
 	if(mousePos.x > cart.x - cart.width / 2 && mousePos.x < cart.x + cart.width / 2
-		&& mousePos.y < top + simHeight * (4 / 5) && mousePos.y > top + simHeight * (4 / 5) - cart.height) {
+		&& mousePos.y < top + simHeight * (4 / 5) - cart.height * .1 && mousePos.y > top + simHeight * (4 / 5) - cart.height * 1.1) {
 		
 		//Left push
 		if(mousePos.x < cart.x - cart.width / 2 + cart.width * HITBOX_RATIO) {
@@ -149,7 +148,7 @@ function draw() {
 
 	drawGraph();
 	drawSimulator();
-	//drawMeters
+	drawMeters();
 }
 
 function drawGraph() {
@@ -170,6 +169,7 @@ function drawGraph() {
 
 	//Draw histogram fill
 	canvas.fillStyle = "cyan";
+	canvas.globalAlpha = .5;
 	canvas.beginPath();
 	canvas.moveTo(start.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2 - (start.y * histoLoc.height / PUSH_FORCE / 2));
 	for(var point of histogram) {
@@ -193,6 +193,7 @@ function drawGraph() {
 
 		canvas.lineTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2 - (point.y * histoLoc.height / PUSH_FORCE / 2));
 	}
+	canvas.globalAlpha = 1;
 
 	canvas.lineTo(end.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 	canvas.closePath();
@@ -312,8 +313,8 @@ function drawSimulator() {
 
 	//Draw Pointer
 	//How far to offset the pointer image to line up with the tip of the finger
-	var offsetX = width / 8;
-	var offsetY = width / 30;
+	var offsetX = width / 9;
+	var offsetY = height / 27;
 
 	var drawPos = {x: mousePos.x, y: mousePos.y};
 
@@ -373,6 +374,23 @@ function drawSimulator() {
 	canvas.strokeRect(0 + canvas.lineWidth / 2, top, width - canvas.lineWidth, simHeight);
 
 	
+}
+
+function drawMeters() {
+	drawVelocityMeter();
+	//drawEnergyMeter();
+}
+
+function drawVelocityMeter() {
+	var top = height * .7;
+	var left = 0;
+	var meterHeight = height * .3;
+
+	canvas.font = height * FONT_RATIO * .95 + "px Verdana";
+	canvas.fillStyle = "black";
+	canvas.fillText("Velocity", width / 4 - canvas.measureText("Velocity").width / 2, top + height * FONT_RATIO);
+	canvas.font = height * FONT_RATIO * .95 + "px Courier New";
+	canvas.fillText(cart.velocity.toFixed(2) + " m/s", width / 4 - canvas.measureText(cart.velocity.toFixed(2) + " m/s").width / 2, top + height * FONT_RATIO * 2);
 }
 
 function mouseHandler(event) {
