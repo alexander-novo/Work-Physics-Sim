@@ -14,6 +14,8 @@ var FONT_RATIO = .025;
 var LABEL_FONT_RATIO = .015;
 //Number of meters wide the canvas is
 var SCALE = 35;
+//Percentage of the width / height the tick marks on the histogram should take up
+var TICK_RATIO = .02;
 
 var canvas;
 var height;
@@ -236,6 +238,60 @@ function drawGraph() {
 	canvas.fillText((SCALE / 4).toFixed(2), histoLoc.x + histoLoc.width * .75 - canvas.measureText((SCALE / 4).toFixed(2)).width / 2, histoLoc.y + histoLoc.height + height * LABEL_FONT_RATIO);
 	canvas.fillText((SCALE / 2).toFixed(2), histoLoc.x + histoLoc.width - canvas.measureText((SCALE / 2).toFixed(2)).width / 2, histoLoc.y + histoLoc.height + height * LABEL_FONT_RATIO);
 
+	//Draw key point tick marks
+	canvas.strokeStyle = "black";
+
+	//y-axis
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x, histoLoc.y + histoLoc.height * .25);
+	canvas.lineTo(histoLoc.x + histoLoc.width * TICK_RATIO / 2, histoLoc.y + histoLoc.height / 4);
+	canvas.stroke();
+
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x, histoLoc.y + histoLoc.height * .5);
+	canvas.lineTo(histoLoc.x + histoLoc.width * TICK_RATIO, histoLoc.y + histoLoc.height / 2);
+	canvas.stroke();
+
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x, histoLoc.y + histoLoc.height * .75);
+	canvas.lineTo(histoLoc.x + histoLoc.width * TICK_RATIO / 2, histoLoc.y + histoLoc.height * .75);
+	canvas.stroke();
+
+	//x-axis
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x + histoLoc.width * .125, histoLoc.y + histoLoc.height);
+	canvas.lineTo(histoLoc.x + histoLoc.width * .125, histoLoc.y + histoLoc.height * (1 - TICK_RATIO / 2));
+	canvas.stroke();
+
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x + histoLoc.width * .25, histoLoc.y + histoLoc.height);
+	canvas.lineTo(histoLoc.x + histoLoc.width * .25, histoLoc.y + histoLoc.height * (1 - TICK_RATIO));
+	canvas.stroke();
+
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x + histoLoc.width * .375, histoLoc.y + histoLoc.height);
+	canvas.lineTo(histoLoc.x + histoLoc.width * .375, histoLoc.y + histoLoc.height * (1 - TICK_RATIO / 2));
+	canvas.stroke();
+
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x + histoLoc.width * .5, histoLoc.y + histoLoc.height);
+	canvas.lineTo(histoLoc.x + histoLoc.width * .5, histoLoc.y + histoLoc.height * (1 - TICK_RATIO));
+	canvas.stroke();
+
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x + histoLoc.width * .625, histoLoc.y + histoLoc.height);
+	canvas.lineTo(histoLoc.x + histoLoc.width * .625, histoLoc.y + histoLoc.height * (1 - TICK_RATIO / 2));
+	canvas.stroke();
+
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x + histoLoc.width * .75, histoLoc.y + histoLoc.height);
+	canvas.lineTo(histoLoc.x + histoLoc.width * .75, histoLoc.y + histoLoc.height * (1 - TICK_RATIO));
+	canvas.stroke();
+
+	canvas.beginPath();
+	canvas.moveTo(histoLoc.x + histoLoc.width * .875, histoLoc.y + histoLoc.height);
+	canvas.lineTo(histoLoc.x + histoLoc.width * .875, histoLoc.y + histoLoc.height * (1 - TICK_RATIO / 2));
+	canvas.stroke();
 
 	//Draw cursor
 	canvas.fillStyle = "red";
