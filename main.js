@@ -312,8 +312,8 @@ function drawSimulator() {
 
 	//Draw Pointer
 	//How far to offset the pointer image to line up with the tip of the finger
-	var offsetX = width / 8;
-	var offsetY = width / 30;
+	var offsetX = width / 9;
+	var offsetY = height / 27;
 
 	var drawPos = {x: mousePos.x, y: mousePos.y};
 
