@@ -148,7 +148,7 @@ function draw() {
 
 	drawGraph();
 	drawSimulator();
-	//drawMeters
+	drawMeters();
 }
 
 function drawGraph() {
@@ -374,6 +374,23 @@ function drawSimulator() {
 	canvas.strokeRect(0 + canvas.lineWidth / 2, top, width - canvas.lineWidth, simHeight);
 
 	
+}
+
+function drawMeters() {
+	drawVelocityMeter();
+	//drawEnergyMeter();
+}
+
+function drawVelocityMeter() {
+	var top = height * .7;
+	var left = 0;
+	var meterHeight = height * .3;
+
+	canvas.font = height * FONT_RATIO * .95 + "px Verdana";
+	canvas.fillStyle = "black";
+	canvas.fillText("Velocity", width / 4 - canvas.measureText("Velocity").width / 2, top + height * FONT_RATIO);
+	canvas.font = height * FONT_RATIO * .95 + "px Courier New";
+	canvas.fillText(cart.velocity.toFixed(2) + " m/s", width / 4 - canvas.measureText(cart.velocity.toFixed(2) + " m/s").width / 2, top + height * FONT_RATIO * 2);
 }
 
 function mouseHandler(event) {
