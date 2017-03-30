@@ -16,6 +16,10 @@ var LABEL_FONT_RATIO = .015;
 var SCALE = 35;
 //Percentage of the width / height the tick marks on the histogram should take up
 var TICK_RATIO = .02;
+//Histogram colors
+var HISTOGRAM_POSITIVE = "blue";
+var HISTOGRAM_NEGATIVE = "maroon";
+var HISTOGRAM_OUTLINE = "blue";
 
 var canvas;
 var height;
@@ -168,7 +172,7 @@ function drawGraph() {
 		height: graphHeight * heightModifier};
 
 	//Draw histogram fill
-	canvas.fillStyle = "blue";
+	canvas.fillStyle = HISTOGRAM_POSITIVE;
 	canvas.globalAlpha = .5;
 	canvas.beginPath();
 	canvas.moveTo(start.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2 - (start.y * histoLoc.height / PUSH_FORCE / 2));
@@ -177,7 +181,7 @@ function drawGraph() {
 			canvas.lineTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 			canvas.closePath();
 			canvas.fill();
-			canvas.fillStyle = "yellow";
+			canvas.fillStyle = HISTOGRAM_NEGATIVE;
 			canvas.beginPath();
 			canvas.moveTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 			positive = false;
@@ -185,7 +189,7 @@ function drawGraph() {
 			canvas.lineTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 			canvas.closePath();
 			canvas.fill();
-			canvas.fillStyle = "blue";
+			canvas.fillStyle = HISTOGRAM_POSITIVE;
 			canvas.beginPath();
 			canvas.moveTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 			positive = true;
@@ -202,7 +206,7 @@ function drawGraph() {
 
 	//Draw Histogram outline
 	canvas.lineWidth = 1;
-	canvas.strokeStyle = "blue";
+	canvas.strokeStyle = HISTOGRAM_OUTLINE;
 	canvas.beginPath();
 	canvas.moveTo(start.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2 - (start.y * histoLoc.height / PUSH_FORCE / 2));
 	for(var point of histogram) {
