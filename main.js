@@ -389,13 +389,52 @@ function drawMeters() {
 function drawVelocityMeter() {
 	var top = height * .7;
 	var left = 0;
-	var meterHeight = height * .3;
+	var velocityHeight = height * .3;
+
+	var meterTop = top + height * .07;
+	var meterHeight = velocityHeight * .75;
+	var meterCenter = {x: left + width / 4, y: meterTop + meterHeight / 2};
+	var meterRadius = meterHeight / 2;
 
 	canvas.font = height * FONT_RATIO * .95 + "px Verdana";
 	canvas.fillStyle = "black";
 	canvas.fillText("Velocity", width / 4 - canvas.measureText("Velocity").width / 2, top + height * FONT_RATIO);
 	canvas.font = height * FONT_RATIO * .95 + "px Courier New";
 	canvas.fillText(cart.velocity.toFixed(2) + " m/s", width / 4 - canvas.measureText(cart.velocity.toFixed(2) + " m/s").width / 2, top + height * FONT_RATIO * 2);
+
+	canvas.strokeStyle = "black";
+	canvas.lineWidth = 2;
+	canvas.beginPath();
+	canvas.moveTo(meterCenter.x + meterRadius * .75 * Math.cos(5 * Math.PI / 4), meterCenter.y - meterRadius * .75 * Math.sin(5 * Math.PI / 4));
+	canvas.lineTo(meterCenter.x + meterRadius * Math.sin(5 * Math.PI / 4), meterCenter.y - meterRadius * Math.cos(5 * Math.PI / 4));
+	canvas.arc(meterCenter.x, meterCenter.y, meterRadius, -5 * Math.PI / 4, Math.PI / 4);
+	canvas.lineTo(meterCenter.x + meterRadius * .75 * Math.cos(-Math.PI / 4), meterCenter.y - meterRadius * .75 * Math.sin(-Math.PI / 4));
+	canvas.stroke();
+
+	for(var angle = 9 * Math.PI / 8; angle > -Math.PI / 4; angle -= Math.PI / 8) {
+		canvas.beginPath();
+		canvas.moveTo(meterCenter.x + meterRadius * .9 * Math.cos(angle), meterCenter.y - meterRadius * .9 * Math.sin(angle));
+		canvas.lineTo(meterCenter.x + meterRadius * Math.cos(angle), meterCenter.y - meterRadius * Math.sin(angle));
+		canvas.stroke();
+	}
+
+	canvas.fillStyle = "black";
+	canvas.beginPath();
+	canvas.arc(meterCenter.x, meterCenter.y, meterRadius * .1, 0, 2 * Math.PI);
+	canvas.fill();
+
+	var maxVelocity = Math.sqrt(PUSH_FORCE * SCALE / cart.mass);
+	var angleRange = 5 * Math.PI / 4 + Math.PI / 4;
+
+	var angle = 5 * Math.PI / 4 - Math.abs(cart.velocity) / maxVelocity * angleRange;
+
+	canvas.strokeStyle = "red";
+	canvas.lineWidth = 4;
+	canvas.beginPath();
+	canvas.moveTo(meterCenter.x, meterCenter.y);
+	canvas.lineTo(meterCenter.x + meterRadius * Math.cos(angle), meterCenter.y - meterRadius * Math.sin(angle));
+	canvas.stroke();
+
 }
 
 function mouseHandler(event) {
