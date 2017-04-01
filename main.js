@@ -16,6 +16,10 @@ var LABEL_FONT_RATIO = .015;
 var SCALE = 35;
 //Percentage of the width / height the tick marks on the histogram should take up
 var TICK_RATIO = .02;
+//Histogram colors
+var HISTOGRAM_POSITIVE = "blue";
+var HISTOGRAM_NEGATIVE = "maroon";
+var HISTOGRAM_OUTLINE = "blue";
 
 var canvas;
 var height;
@@ -121,6 +125,8 @@ function updatePhysics() {
 
 	cart.x += cart.velocity * timePassed / 1000 * (width / SCALE);
 
+	cart.energy = .5 * cart.mass * cart.velocity * cart.velocity;
+
 	updateHistogram(cart.x, push * cart.velocity / Math.abs(cart.velocity));
 }
 
@@ -168,7 +174,7 @@ function drawGraph() {
 		height: graphHeight * heightModifier};
 
 	//Draw histogram fill
-	canvas.fillStyle = "cyan";
+	canvas.fillStyle = HISTOGRAM_POSITIVE;
 	canvas.globalAlpha = .5;
 	canvas.beginPath();
 	canvas.moveTo(start.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2 - (start.y * histoLoc.height / PUSH_FORCE / 2));
@@ -177,7 +183,7 @@ function drawGraph() {
 			canvas.lineTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 			canvas.closePath();
 			canvas.fill();
-			canvas.fillStyle = "yellow";
+			canvas.fillStyle = HISTOGRAM_NEGATIVE;
 			canvas.beginPath();
 			canvas.moveTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 			positive = false;
@@ -185,7 +191,7 @@ function drawGraph() {
 			canvas.lineTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 			canvas.closePath();
 			canvas.fill();
-			canvas.fillStyle = "cyan";
+			canvas.fillStyle = HISTOGRAM_POSITIVE;
 			canvas.beginPath();
 			canvas.moveTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 			positive = true;
@@ -193,15 +199,16 @@ function drawGraph() {
 
 		canvas.lineTo(point.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2 - (point.y * histoLoc.height / PUSH_FORCE / 2));
 	}
-	canvas.globalAlpha = 1;
 
 	canvas.lineTo(end.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2);
 	canvas.closePath();
 	canvas.fill();
 
+	canvas.globalAlpha = 1;
+
 	//Draw Histogram outline
 	canvas.lineWidth = 1;
-	canvas.strokeStyle = "blue";
+	canvas.strokeStyle = HISTOGRAM_OUTLINE;
 	canvas.beginPath();
 	canvas.moveTo(start.x * widthModifier + histoLoc.x, histoLoc.y + histoLoc.height / 2 - (start.y * histoLoc.height / PUSH_FORCE / 2));
 	for(var point of histogram) {
@@ -378,19 +385,92 @@ function drawSimulator() {
 
 function drawMeters() {
 	drawVelocityMeter();
-	//drawEnergyMeter();
+	drawEnergyMeter();
 }
 
 function drawVelocityMeter() {
 	var top = height * .7;
 	var left = 0;
-	var meterHeight = height * .3;
+	var velocityHeight = height * .3;
+
+	var meterTop = top + height * .07;
+	var meterHeight = velocityHeight * .75;
+	var meterCenter = {x: left + width / 4, y: meterTop + meterHeight / 2};
+	var meterRadius = meterHeight / 2;
 
 	canvas.font = height * FONT_RATIO * .95 + "px Verdana";
 	canvas.fillStyle = "black";
 	canvas.fillText("Velocity", width / 4 - canvas.measureText("Velocity").width / 2, top + height * FONT_RATIO);
 	canvas.font = height * FONT_RATIO * .95 + "px Courier New";
 	canvas.fillText(cart.velocity.toFixed(2) + " m/s", width / 4 - canvas.measureText(cart.velocity.toFixed(2) + " m/s").width / 2, top + height * FONT_RATIO * 2);
+
+	canvas.strokeStyle = "black";
+	canvas.lineWidth = 2;
+	canvas.beginPath();
+	canvas.moveTo(meterCenter.x + meterRadius * .75 * Math.cos(5 * Math.PI / 4), meterCenter.y - meterRadius * .75 * Math.sin(5 * Math.PI / 4));
+	canvas.lineTo(meterCenter.x + meterRadius * Math.sin(5 * Math.PI / 4), meterCenter.y - meterRadius * Math.cos(5 * Math.PI / 4));
+	canvas.arc(meterCenter.x, meterCenter.y, meterRadius, -5 * Math.PI / 4, Math.PI / 4);
+	canvas.lineTo(meterCenter.x + meterRadius * .75 * Math.cos(-Math.PI / 4), meterCenter.y - meterRadius * .75 * Math.sin(-Math.PI / 4));
+	canvas.stroke();
+
+	for(var angle = 9 * Math.PI / 8; angle > -Math.PI / 4; angle -= Math.PI / 8) {
+		canvas.beginPath();
+		canvas.moveTo(meterCenter.x + meterRadius * .9 * Math.cos(angle), meterCenter.y - meterRadius * .9 * Math.sin(angle));
+		canvas.lineTo(meterCenter.x + meterRadius * Math.cos(angle), meterCenter.y - meterRadius * Math.sin(angle));
+		canvas.stroke();
+	}
+
+	canvas.fillStyle = "black";
+	canvas.beginPath();
+	canvas.arc(meterCenter.x, meterCenter.y, meterRadius * .1, 0, 2 * Math.PI);
+	canvas.fill();
+
+	var maxVelocity = Math.sqrt(PUSH_FORCE * SCALE / cart.mass);
+	var angleRange = 5 * Math.PI / 4 + Math.PI / 4;
+
+	var angle = 5 * Math.PI / 4 - Math.abs(cart.velocity) / maxVelocity * angleRange;
+
+	canvas.strokeStyle = "red";
+	canvas.lineWidth = 4;
+	canvas.beginPath();
+	canvas.moveTo(meterCenter.x, meterCenter.y);
+	canvas.lineTo(meterCenter.x + meterRadius * Math.cos(angle), meterCenter.y - meterRadius * Math.sin(angle));
+	canvas.stroke();
+
+}
+
+function drawEnergyMeter() {
+	var top = height * .7;
+	var left = width / 2;
+	var energyHeight = height * .3;
+
+	canvas.font = height * FONT_RATIO * .95 + "px Verdana";
+	canvas.fillStyle = "black";
+	canvas.fillText("Kinetic Energy", width * .75 - canvas.measureText("Kinetic Energy").width / 2, top + height * FONT_RATIO);
+	canvas.font = height * FONT_RATIO * .95 + "px Courier New";
+	canvas.fillText(cart.energy.toFixed(2) + " J", width * .75 - canvas.measureText(cart.energy.toFixed(2) + " J").width / 2, top + height * FONT_RATIO * 2);
+
+	var maxEnergy = PUSH_FORCE * SCALE / 2;
+	var meterWidth = width * .4;
+	var meterHeight = energyHeight * .3;
+	var center = {x: left + width / 4, y: top + energyHeight / 2};
+
+	canvas.fillStyle = "red";
+	canvas.fillRect(center.x - meterWidth / 2, center.y - meterHeight / 2, meterWidth * cart.energy / maxEnergy, meterHeight);
+	canvas.strokeStyle = "black";
+	canvas.lineWidth = 2;
+	canvas.strokeRect(center.x - meterWidth / 2, center.y - meterHeight / 2, meterWidth, meterHeight);
+
+	//Thermometer tick marks
+	var numTicks = 10;
+	for(var i = 1; i < numTicks; i++) {
+		canvas.beginPath();
+		canvas.moveTo(center.x - meterWidth * ( .5 - i / numTicks), center.y - meterHeight / 2);
+		canvas.lineTo(center.x - meterWidth * ( .5 - i / numTicks), center.y - meterHeight * (.5 - .1 * ((i - 1) % 2 + 1)));
+		canvas.stroke();
+	}
+
+
 }
 
 function mouseHandler(event) {
