@@ -125,6 +125,8 @@ function updatePhysics() {
 
 	cart.x += cart.velocity * timePassed / 1000 * (width / SCALE);
 
+	cart.energy = .5 * cart.mass * cart.velocity * cart.velocity;
+
 	updateHistogram(cart.x, push * cart.velocity / Math.abs(cart.velocity));
 }
 
@@ -446,7 +448,29 @@ function drawEnergyMeter() {
 	canvas.fillStyle = "black";
 	canvas.fillText("Kinetic Energy", width * .75 - canvas.measureText("Kinetic Energy").width / 2, top + height * FONT_RATIO);
 	canvas.font = height * FONT_RATIO * .95 + "px Courier New";
-	canvas.fillText((0.5 * cart.mass * cart.velocity * cart.velocity).toFixed(2) + " J", width * .75 - canvas.measureText((0.5 * cart.mass * cart.velocity * cart.velocity).toFixed(2) + " J").width / 2, top + height * FONT_RATIO * 2);
+	canvas.fillText(cart.energy.toFixed(2) + " J", width * .75 - canvas.measureText(cart.energy.toFixed(2) + " J").width / 2, top + height * FONT_RATIO * 2);
+
+	var maxEnergy = PUSH_FORCE * SCALE / 2;
+	var meterWidth = width * .4;
+	var meterHeight = energyHeight * .3;
+	var center = {x: left + width / 4, y: top + energyHeight / 2};
+
+	canvas.fillStyle = "red";
+	canvas.fillRect(center.x - meterWidth / 2, center.y - meterHeight / 2, meterWidth * cart.energy / maxEnergy, meterHeight);
+	canvas.strokeStyle = "black";
+	canvas.lineWidth = 2;
+	canvas.strokeRect(center.x - meterWidth / 2, center.y - meterHeight / 2, meterWidth, meterHeight);
+
+	//Thermometer tick marks
+	var numTicks = 10;
+	for(var i = 1; i < numTicks; i++) {
+		canvas.beginPath();
+		canvas.moveTo(center.x - meterWidth * ( .5 - i / numTicks), center.y - meterHeight / 2);
+		canvas.lineTo(center.x - meterWidth * ( .5 - i / numTicks), center.y - meterHeight * (.5 - .1 * ((i - 1) % 2 + 1)));
+		canvas.stroke();
+	}
+
+
 }
 
 function mouseHandler(event) {
