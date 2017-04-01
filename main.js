@@ -383,7 +383,7 @@ function drawSimulator() {
 
 function drawMeters() {
 	drawVelocityMeter();
-	//drawEnergyMeter();
+	drawEnergyMeter();
 }
 
 function drawVelocityMeter() {
@@ -435,6 +435,18 @@ function drawVelocityMeter() {
 	canvas.lineTo(meterCenter.x + meterRadius * Math.cos(angle), meterCenter.y - meterRadius * Math.sin(angle));
 	canvas.stroke();
 
+}
+
+function drawEnergyMeter() {
+	var top = height * .7;
+	var left = width / 2;
+	var energyHeight = height * .3;
+
+	canvas.font = height * FONT_RATIO * .95 + "px Verdana";
+	canvas.fillStyle = "black";
+	canvas.fillText("Kinetic Energy", width * .75 - canvas.measureText("Kinetic Energy").width / 2, top + height * FONT_RATIO);
+	canvas.font = height * FONT_RATIO * .95 + "px Courier New";
+	canvas.fillText((0.5 * cart.mass * cart.velocity * cart.velocity).toFixed(2) + " J", width * .75 - canvas.measureText((0.5 * cart.mass * cart.velocity * cart.velocity).toFixed(2) + " J").width / 2, top + height * FONT_RATIO * 2);
 }
 
 function mouseHandler(event) {
